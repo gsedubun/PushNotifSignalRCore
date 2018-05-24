@@ -18,7 +18,7 @@ namespace signal_core.Hubs{
         }
 
           public void Send(string message){
-            Clients.All.SendAsync("SendMessage",message);
+            Clients.All.SendAsync("SendMessage", Context.User.Identity.Name, message);
         }
 
     }

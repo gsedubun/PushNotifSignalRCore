@@ -4,10 +4,18 @@ using System.Text;
 
 namespace core.ViewModels
 {
-   public class AkunUserViewModel
+    public class AkunUserViewModel
     {
-        public string FullName { get; set; }
-        public string Password { get; set; }
         public string Email { get; set; }
+    }
+
+    public class AkunRegisterViewModel : AkunUserViewModel
+    {
+        public string Password { get; set; }
+        public string FullName { get; set; }
+    }
+    public class AkunLoginViewModel : AkunUserViewModel
+    {
+        public string Password { get; set; }
     }
 }

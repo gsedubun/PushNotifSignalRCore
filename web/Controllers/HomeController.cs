@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using signal_core.Models;
 
 namespace signal_core.Controllers
 {
+        [Authorize]
     public class HomeController : Controller
     {
         public IActionResult Index()
@@ -21,7 +23,6 @@ namespace signal_core.Controllers
 
             return View();
         }
-
         public IActionResult Contact()
         {
             ViewData["Message"] = "Your contact page.";

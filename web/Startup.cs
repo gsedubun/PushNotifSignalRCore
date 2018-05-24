@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using core.Models;
 using core.Repositories;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -18,6 +19,7 @@ namespace signal_core
 {
     public class Startup
     {
+        private const string scheme = "signal_core";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -43,6 +45,15 @@ namespace signal_core
                 d.UseSqlServer(Configuration.GetConnectionString("mssql"));
             });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, d =>
+                {
+                    d.LoginPath = "/account/login";
+                    d.AccessDeniedPath = "/account/denied";
+                    d.Cookie.Name = scheme;
+                });
+               
+                
             services.AddSignalR();
             services.AddScoped<Unitofwork>();
 
@@ -65,8 +76,8 @@ namespace signal_core
             //app.UseHttpsRedirection();
             
             app.UseStaticFiles();
-            app.UseCookiePolicy();
-
+            //app.UseCookiePolicy()
+            app.UseAuthentication();
          
             app.UseMvc(
             routes =>
