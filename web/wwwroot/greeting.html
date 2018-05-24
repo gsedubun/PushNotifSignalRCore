@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style type="text/css">
+        form {
+            background-color: #bdcebd;
+            color: #b12231;
+        }
+    </style>
+    <script src="/lib/signalr/signalr.js" type="text/javascript"></script>
+  
+</head>
+
+<body>
+ 
+    <div class="container">
+<form id="send-form" action="#">
+    <label>Send a message:</label>
+
+            <input type="text" id="message-textbox" />
+            
+            <input type="submit" value="send" id="send-button" />
+            <ul id="messages-list">
+
+        </ul>
+
+        </form>
+    </div>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+                var sendForm = document.getElementById("send-form");
+                var sendButton = document.getElementById("send-button");
+                var messagesList = document.getElementById("messages-list");
+                var messageTextBox = document.getElementById("message-textbox");
+    
+                function appendMessage(content) {
+                    var li = document.createElement("li");
+                    li.innerText = content;
+                    messagesList.appendChild(li);
+                }
+               
+                var connection = new signalR.HubConnectionBuilder()
+                    .withUrl("/hubs/greeting")
+                    .build();
+                sendForm.addEventListener("submit", function (e) {
+                    var message = messageTextBox.value;
+                    messageTextBox.value = "";
+                    connection.send("Send", message);
+                    e.preventDefault();
+                    //alert("sent");
+                });
+    
+                connection.on("SendMessage", function (sender, message) {
+                    appendMessage(sender + ': ' + message);
+                });
+    
+                connection.on("SendAction", function (sender, action) {
+                    appendMessage(sender + ' ' + action);
+                });
+                connection.start().then(function () {
+                    messageTextBox.disabled = false;
+                    sendButton.disabled = false;
+                });
+            });
+        </script>
+</body>
+
+</html>
