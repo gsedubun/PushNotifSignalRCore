@@ -14,12 +14,17 @@ namespace signal_core.Hubs{
             await Clients.All.SendAsync("SendAction", Context.User.Identity.Name, "left");
         }
         public void Greet(string message){
-            Clients.All.SendAsync("greet",message);
+            Clients.All.SendAsync("Greet",message);
         }
 
-          public void Send(string message){
+
+    }
+
+    public class ChatHub : Hub
+    {
+        public void Send(string message)
+        {
             Clients.All.SendAsync("SendMessage", Context.User.Identity.Name, message);
         }
-
     }
 }

@@ -89,6 +89,7 @@ namespace signal_core
             app.UseSignalR(opt => 
             {
                 opt.MapHub<GreetingHub>("/hubs/greeting");
+                opt.MapHub<ChatHub>("/hubs/chat");
             });
         }
     }

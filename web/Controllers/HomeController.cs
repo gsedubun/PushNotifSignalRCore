@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using signal_core.Models;
+using System.Diagnostics;
 
 namespace signal_core.Controllers
 {
-        [Authorize]
+    [Authorize]
     public class HomeController : Controller
     {
         public IActionResult Index()
