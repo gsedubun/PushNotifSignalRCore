@@ -3,6 +3,7 @@ using core.Repositories;
 using core.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using System.Collections.Generic;
@@ -31,7 +32,16 @@ namespace signal_core.Controllers
                 Email = d.Email
             }));
         }
-        [Route("register")]
+
+        [AllowAnonymous]
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public IActionResult Register(AkunRegisterViewModel akunUser)
         {
@@ -41,13 +51,17 @@ namespace signal_core.Controllers
                 {
                     FullName = akunUser.FullName,
                     Email = akunUser.Email,
-                    Password = akunUser.Password
+                    Password = akunUser.Password,
+                    PhoneNumber=akunUser.PhoneNumber
                 });
                 unitofwork.Save();
-                return Ok();
+                //return Ok();
+               return RedirectToAction("Index", "Home");
             }
-            return BadRequest(ModelState);
+            return View(akunUser);
         }
+
+
         [HttpGet]
         public IActionResult Login() {
             return View();

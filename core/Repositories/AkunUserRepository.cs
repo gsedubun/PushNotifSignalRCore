@@ -5,6 +5,7 @@ using System.Text;
 
 namespace core.Repositories
 {
+    
     public class AkunUserRepository : Repository<AkunUser>
     {
         private readonly AppDataContext Db;

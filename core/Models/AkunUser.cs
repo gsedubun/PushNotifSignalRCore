@@ -14,6 +14,10 @@ namespace core.Models
         [EmailAddress]
         [MaxLength(200)]
         public string Email { get; set; }
+
+        [Phone]
+        [MaxLength(150)]
+        public string PhoneNumber { get; set; }
     }
 
 }
