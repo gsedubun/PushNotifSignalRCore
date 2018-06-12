@@ -101,6 +101,12 @@ namespace signal_core.Controllers
             }
             return View(akunUser);
         }
+        [HttpGet]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+            return RedirectToAction("Index","Home");
+        }
 
 
         [HttpGet]
