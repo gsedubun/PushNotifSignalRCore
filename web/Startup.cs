@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using core.Models;
 using core.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -44,16 +45,44 @@ namespace signal_core
                 //});
                 d.UseSqlServer(Configuration.GetConnectionString("mssql"));
             });
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, d =>
                 {
                     d.LoginPath = "/account/login";
                     d.AccessDeniedPath = "/account/denied";
                     d.Cookie.Name = scheme;
-                });
+                    
+                }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme,d=> {
+                    d.RequireHttpsMetadata=false;
+                    d.SaveToken=true;
+                    d.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters{
+                        ValidateIssuer=true,
+                        ValidateAudience=true,
+                        ValidateLifetime=true,
+                        ValidateIssuerSigningKey=true,
+
+//                        ValidIssuer= JwtSecurityKey.Issuer, //"SmartCity.Security.Bearer",
+//                        ValidAudience= JwtSecurityKey.Audience, //"SmartCity.Security.Bearer",
+                        IssuerSigningKey = JwtSecurityKey.Create()
+                    };
+                    
+                });;
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
                
-                
+            // services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)    
+            //     .AddJwtBearer(d=> {
+            //         d.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters{
+            //             ValidateIssuer=true,
+            //             ValidateAudience=true,
+            //             ValidateLifetime=true,
+            //             ValidateIssuerSigningKey=true,
+
+            //             ValidIssuer="SmartCity.Security.Bearer",
+            //             ValidAudience="SmartCity.Security.Bearer",
+            //             IssuerSigningKey = JwtSecurityKey.Create("rahasia123")
+            //         };
+                    
+            //     });
             services.AddSignalR();
             services.AddScoped<Unitofwork>();
 

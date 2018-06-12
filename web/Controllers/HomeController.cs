@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using core.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using signal_core.Models;
 using System.Diagnostics;
@@ -6,8 +7,12 @@ using System.Diagnostics;
 namespace signal_core.Controllers
 {
     [Authorize]
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
+        public HomeController(Unitofwork unitofwork) : base(unitofwork)
+        {
+        }
+
         public IActionResult Index()
         {
             return View();

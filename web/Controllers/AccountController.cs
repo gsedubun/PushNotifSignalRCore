@@ -3,10 +3,14 @@ using core.Repositories;
 using core.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -14,24 +18,61 @@ using System.Threading.Tasks;
 namespace signal_core.Controllers
 {
 
-    public class AccountController : Controller
+    public class BaseController : Controller
     {
-        private readonly Unitofwork unitofwork;
-
-        public AccountController(Unitofwork unitofwork)
+        protected readonly Unitofwork unitofwork;
+        public BaseController(Unitofwork unitofwork)
         {
             this.unitofwork = unitofwork;
+
+        }
+    }
+    public class AccountController : BaseController
+    {
+        public AccountController(Unitofwork unitofwork) : base(unitofwork)
+        {
         }
 
-        [Route("getuser")]
-        public IActionResult GetUser()
+        [Route("token")]
+        [HttpPost]
+        public async Task<IActionResult> TokenAsync([FromBody] AkunLoginViewModel inputModel)
         {
-            return Ok(unitofwork.AkunUser.All().Select(d => new AkunUser
+
+            if (ModelState.IsValid)
             {
-                FullName = d.FullName,
-                Email = d.Email
-            }));
+                var valid = unitofwork.AkunUser.ValidateUserLogin(inputModel);
+                if (!valid)
+                    return Unauthorized();
+
+
+                var claims = new List<Claim>(){
+                    new Claim(ClaimTypes.NameIdentifier, inputModel.Email),
+                    new Claim(JwtRegisteredClaimNames.Sub, inputModel.Email),
+                    new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString())
+                };
+
+                var cls = new ClaimsIdentity(claims, JwtBearerDefaults.AuthenticationScheme);
+                var claimsPrincipal = new ClaimsPrincipal(cls);
+                await HttpContext.SignInAsync(claimsPrincipal);
+
+
+                var credentials = new SigningCredentials(JwtSecurityKey.Create(),
+                 SecurityAlgorithms.HmacSha256);
+
+                var token = new JwtSecurityToken(JwtSecurityKey.Issuer,
+                 JwtSecurityKey.Audience,
+                  claimsPrincipal.Claims, DateTime.Now, DateTime.Now.AddDays(1),
+                  credentials);
+
+                return Ok(new
+                {
+                    token = new JwtSecurityTokenHandler().WriteToken(token),
+                    expiration = token.ValidTo
+                });
+            }
+            return BadRequest(inputModel);
         }
+
 
         [AllowAnonymous]
         [HttpGet]
@@ -52,18 +93,19 @@ namespace signal_core.Controllers
                     FullName = akunUser.FullName,
                     Email = akunUser.Email,
                     Password = akunUser.Password,
-                    PhoneNumber=akunUser.PhoneNumber
+                    PhoneNumber = akunUser.PhoneNumber
                 });
                 unitofwork.Save();
                 //return Ok();
-               return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Home");
             }
             return View(akunUser);
         }
 
 
         [HttpGet]
-        public IActionResult Login() {
+        public IActionResult Login()
+        {
             return View();
         }
 
