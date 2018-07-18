@@ -14,11 +14,21 @@ namespace signal_core
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            var configuration = new ConfigurationBuilder()
+            .AddCommandLine(args)
+            .AddJsonFile("hosting.json", optional:true)
+            .Build();
+
+            var host  =  CreateWebHostBuilder(args, configuration).Build();
+            host.Run();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args, IConfiguration configuration) =>
             WebHost.CreateDefaultBuilder(args)
+                .UseKestrel()
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseConfiguration(configuration)
+                .UseIISIntegration()
                 .UseStartup<Startup>();
     }
 }

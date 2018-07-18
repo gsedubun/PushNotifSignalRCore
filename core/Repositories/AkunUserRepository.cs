@@ -1,5 +1,6 @@
 ﻿using core.Models;
 using core.ViewModels;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -23,6 +24,18 @@ namespace core.Repositories
                 return true;
             }
             return false;
+        }
+
+        public IEnumerable<AkunUserViewModel> Search(string email)
+        {
+            var data = this.Db.AkunUser.Where(d => d.Email == email).Select(d => new
+               AkunRegisterViewModel
+            {
+                Email = d.Email,
+                FullName = d.FullName,
+                PhoneNumber = d.PhoneNumber
+            }).ToList();
+            return data;
         }
         
     }
